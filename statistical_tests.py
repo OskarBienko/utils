@@ -2,12 +2,21 @@ import numpy as np
 import scipy.stats as stats
 
 
-def pttest(y, yhat):
+def pttest(y: list[int], yhat: list[int]):
     
     '''
-    Given NumPy arrays with predictions and with true values,
-    return Directional Accuracy Score, Pesaran-Timmermann statistic and its p-value
-    reference: https://gist.github.com/vpekar/df58ac8f07ec9d4ef24bcf1c176812b0
+    The Pesaran-Timmermann test is based on the proportion
+    of times that the direction of change in y is correctly
+    predicted in the sample. It requires that the probability
+    of changes in the direction of y and yhat is time-invariant
+    and does not take extreme values of 0 and 1.
+    
+    y: variable of interest
+    yhat: predictor of y
+    returns: Directional Accuracy Score, Pesaran-Timmermann statistic and its p-value
+    references:
+    https://gist.github.com/vpekar/df58ac8f07ec9d4ef24bcf1c176812b0
+    https://www.jstor.org/stable/1391822
 
     Example usage:
     a = np.array([23, -2, 56, 51, 4, -45, -12, -24, -51, 78, -6, -7, -39, 31, 35])
