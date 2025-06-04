@@ -1,5 +1,9 @@
 import numpy as np
+import pandas as pd
+from typing import List
 import scipy.stats as stats
+from IPython.display import display
+from statsmodels.stats.outliers_influence import variance_inflation_factor
 
 
 def pttest(y: list[int], yhat: list[int]):
@@ -14,7 +18,8 @@ def pttest(y: list[int], yhat: list[int]):
     y: variable of interest
     yhat: predictor of y
     returns: Directional Accuracy Score, Pesaran-Timmermann statistic and its p-value
-    references:
+    
+    References:
     https://gist.github.com/vpekar/df58ac8f07ec9d4ef24bcf1c176812b0
     https://www.jstor.org/stable/1391822
 
@@ -38,3 +43,38 @@ def pttest(y: list[int], yhat: list[int]):
     pval = 1 - stats.norm.cdf(pt, 0, 1)
     
     return pyz, pt, pval
+
+
+def print_vif(
+    df: pd.DataFrame = None,
+    exog: List[str] = None,
+) -> None:
+    """Calculate the VIF for each variable using statsmodels
+    As mentioned by Josef Perktold, the function's author,
+    variance_inflation_factor expects the presence of
+    a constant in the matrix of explanatory variables.
+    
+    Reference:
+    https://github.com/statsmodels/statsmodels/issues/2376
+
+    :param df: dataframe, defaults to None
+    :type df: pd.DataFrame, optional
+    :param exog: list with exogenous variables names, defaults to None
+    :type exog: List, optional
+
+    Example usage:
+    np.random.seed(0)
+    df = pd.DataFrame({
+        'const': 1,
+        'x1': np.random.normal(size=100),
+        'x2': np.random.normal(size=100),
+        'x3': np.random.normal(size=100)
+    })
+    print_vif(df=df, exog=['const', 'x1', 'x2', 'x3'])
+    """
+    
+    vif = dict()
+    for i, var in enumerate(exog):
+        vif[var] = variance_inflation_factor(exog=df[exog], exog_idx=i).round(2)
+
+    display(pd.DataFrame.from_dict(data=vif, orient='index', columns=['VIF']).sort_values(by=['VIF'], ascending=False))
