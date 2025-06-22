@@ -3,6 +3,7 @@ import pandas as pd
 from typing import List
 import scipy.stats as stats
 from IPython.display import display
+from statsmodels.tsa.stattools import adfuller
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 
 
@@ -44,7 +45,6 @@ def pttest(y: list[int], yhat: list[int]):
     
     return pyz, pt, pval
 
-
 def print_vif(
     df: pd.DataFrame = None,
     exog: List[str] = None,
@@ -78,3 +78,36 @@ def print_vif(
         vif[var] = variance_inflation_factor(exog=df[exog], exog_idx=i).round(2)
 
     display(pd.DataFrame.from_dict(data=vif, orient='index', columns=['VIF']).sort_values(by=['VIF'], ascending=False))
+    
+def perform_adf_test(series: pd.Series = None, regression: str = 'c') -> float:
+    """
+    Perform Augmented Dickey-Fuller test to check for stationarity in a time series.
+
+    :param series: Time series data, defaults to None
+    :type series: pd.Series, optional
+    :param regression: Type of regression ('c', 'ct', 'ctt', 'n'), defaults to 'c'
+    :type regression: str, optional
+    :return: p-value of the test
+    :rtype: float
+
+    Stationarity means that the statistical properties of a time series, i.e. mean, variance and covariance do not change over time. 
+    Many statistical models require the series to be stationary to make effective and precise predictions.
+    The null hypothesis of the Augmented Dickey-Fuller is that there is a unit root (series is not stationary).
+    The alternative hypothesis is that there is no unit root.
+
+    Example usage:
+    import pandas as pd
+    import numpy as np
+    from statsmodels.tsa.stattools import adfuller
+
+    # Generate a random walk (non-stationary)
+    np.random.seed(0)
+    x = np.random.normal(size=100).cumsum()
+    series = pd.Series(x)
+
+    pval = perform_adf_test(series)
+    print(f"ADF test p-value: {pval}")
+    """
+    pval = np.round(adfuller(x=series, regression=regression, autolag=None)[1], 3)
+    return pval
+
